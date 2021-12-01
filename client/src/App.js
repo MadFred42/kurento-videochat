@@ -11,16 +11,12 @@ const App = observer(() => {
   return (
     <Router className="App">
       <Routes>
-        {
-          authStore.isAuth && AuthRoutes.map(({ path, element }) => (
+        {authStore.isAuth && AuthRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />
-          ))
-        }
-        {
-          PublicRoutes.map(({ path, element }) => (
+          ))}
+        {PublicRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={element} exact />
-          ))
-        }
+          ))}
       </Routes>
     </Router>
   );
