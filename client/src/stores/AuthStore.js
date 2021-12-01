@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, toJS } from 'mobx';
 import AuthService from '../services/AuthService';
 
 export default class AuthStore {
@@ -16,6 +16,7 @@ export default class AuthStore {
     };
 
     set user(user) {
+        console.log(user)
         this._user = user;
     };
 
@@ -28,7 +29,7 @@ export default class AuthStore {
     };
 
     get user() {
-        return this._user;
+        return toJS(this._user);
     };
     
     get users() {
@@ -38,9 +39,11 @@ export default class AuthStore {
     async registration(username, password) {
         try {
             const response = await AuthService.registration(username, password);
-            this._isAuth = true;
+            this.isAuth = true;
+            console.log(response)
+            this.user = response.data;
         } catch (e) {
-            
+            console.log(e)
         }
     };
 };

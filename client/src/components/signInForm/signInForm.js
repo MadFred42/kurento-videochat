@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Container, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { Context } from '../..';
+import { observer } from 'mobx-react-lite';
 
-export const SignInForm = () => {
+export const SignInForm = observer(() => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { authStore } = useContext(Context);
@@ -66,4 +67,4 @@ export const SignInForm = () => {
             </Box>
         </Container>
     );
-};
+});

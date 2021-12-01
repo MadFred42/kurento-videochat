@@ -6,7 +6,7 @@ import { AuthRoutes, PublicRoutes } from "./routes";
 
 const App = observer(() => {
   const { authStore } = useContext(Context);
-  console.log(authStore.isAuth)
+  console.log(authStore.user);
   return (
     <Router className="App">
       <Routes>
