@@ -1,11 +1,12 @@
-import React, { useContext } from "react";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useContext, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { Context } from './';
 import { observer } from 'mobx-react-lite';
 import { AuthRoutes, PublicRoutes } from "./routes";
 
 const App = observer(() => {
-  const { authStore } = useContext(Context);
+  const { authStore, roomStore } = useContext(Context);
+  
   console.log(authStore.user);
   return (
     <Router className="App">

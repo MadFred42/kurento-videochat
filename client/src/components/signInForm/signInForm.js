@@ -4,9 +4,10 @@ import { Button, Container, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { Context } from '../..';
 import { observer } from 'mobx-react-lite';
+import { useLocalStorage } from 'react-use';
 
 export const SignInForm = observer(() => {
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useLocalStorage('username', 'Fred');
     const [password, setPassword] = useState('');
     const { authStore } = useContext(Context);
     const naviagte = useNavigate();

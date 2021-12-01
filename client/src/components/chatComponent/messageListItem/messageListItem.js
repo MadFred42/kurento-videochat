@@ -1,9 +1,10 @@
-import React from 'react'
+import React from 'react';
+import { ListItem } from '@mui/material';
 
 export const MessageListItem = () => {
     return (
-        <div>
+        <ListItem>
             MessageListItem
-        </div>
+        </ListItem>
     );
 };

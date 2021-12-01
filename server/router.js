@@ -1,10 +1,11 @@
 const Router = require('express');
+const roomController = require('./controllers/roomController');
 const userController = require('./controllers/userController');
 
 const router = new Router();
 
+router.post('/join', roomController.createRoom);
 router.post('/registration', userController.registration);
-router.post('/login', userController.login);
-router.get('/getUsers', userController.getUsers);
+router.get('/getuser', userController.getUser);
 
 module.exports = router;

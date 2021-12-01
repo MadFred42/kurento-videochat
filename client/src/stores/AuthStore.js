@@ -1,5 +1,8 @@
+import axios from 'axios';
 import { makeAutoObservable, toJS } from 'mobx';
+import { baseURL } from '../http';
 import AuthService from '../services/AuthService';
+import socket from '../socket';
 
 export default class AuthStore {
 
@@ -7,8 +10,13 @@ export default class AuthStore {
         this._isAuth = false;
         this._user = {};
         this._users = [];
+        this._error = '';
 
         makeAutoObservable(this);
+    };
+
+    set error(error) {
+        this._error = error;
     };
 
     set isAuth(boolean) {
@@ -16,13 +24,16 @@ export default class AuthStore {
     };
 
     set user(user) {
-        console.log(user)
         this._user = user;
     };
 
     set users(users) {
         this._users = users;
     };
+
+    get error() {
+        return toJS(this._error);
+    }
 
     get isAuth() {
         return this._isAuth;
@@ -38,10 +49,15 @@ export default class AuthStore {
 
     async registration(username, password) {
         try {
-            const response = await AuthService.registration(username, password);
+            socket.emit('registration', { username, password }, (res) => {
+                console.log(res);
+                if (typeof(res) === 'string') {
+                    return this.error = res;
+                }
+
+                this.user = res;
+            });
             this.isAuth = true;
-            console.log(response)
-            this.user = response.data;
         } catch (e) {
             console.log(e)
         }

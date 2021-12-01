@@ -6,7 +6,7 @@ const useSocket = require('socket.io');
 const io = useSocket(server);
 const cors = require('cors');
 const mongoose = require('mongoose');
-const router = require('./router');
+const userController = require('./controllers/userController');
 
 app.use(express.json());
 app.use(cors( { 
@@ -14,11 +14,21 @@ app.use(cors( {
     origin: process.env.CLIENT_URL,
     methods: ["GET", "POST"]
  } ));
-app.use('/api', router); 
 
 io.on('connection', (socket) => {
    console.log(`A user connected ${socket.id}`);
-   
+
+   socket.on('registration', async (data, callback) => {
+      const res = await userController.registration(data.username, data.password, socket, io);
+      console.log(res);
+      return callback(res);
+   });
+
+   socket.on('disconnect', async () => {
+      console.log('user disconnected');
+
+      await userController.deleteUser(socket.id);
+   })
 });
 
  const PORT = process.env.PORT || 5000;

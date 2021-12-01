@@ -1,46 +1,28 @@
 const userModel = require("../models/userModel");
 const bcrypt = require('bcryptjs');
+const roomModel = require("../models/roomModel");
 
 class UserController {
-    async registration (req, res) {
+    async registration (username, password, socket, io) {
         try {
-            const { username, password } = req.body;
+            const sockets = await io.fetchSockets();
+
+            if (sockets.length > 4) {
+                return 'Sorry, room is full';
+            }
             const hashPassword = await bcrypt.hash(password, 5);
-            const user = await userModel.findOne({ username });
+            const newUser = await userModel.create({ username, password: hashPassword, socketId: socket.id });
 
-            if (user) {
-                return res.status(400).json({ message : `User '${username}' already exist` });
-            }
-
-            const createUser = await userModel.create({ username, password: hashPassword });
-
-            return res.json(createUser.toDto());
+            return await newUser.toDto();
         } catch (e) {
             console.log(e);
         }
     };
 
-    async login (req, res) {
+    async deleteUser (socketId) {
         try {
-            const { username, password } = req.body;
-            const user = await userModel.findOne({ username });
-
-            if (!user) {
-                return res.status(400).json({ message: `User '${username}' does not exist` });
-            }
-
-            return res.json(user.toDto());
+            const user = await userModel.deleteOne({ socketId });
         } catch (e) {
-            console.log(e);
-        }
-    };
-
-    async getUsers (req, res) {
-        try {
-            const users = await userModel.find();
-
-            return res.json({users: users});
-        } catch (error) {
             console.log(e);
         }
     };
