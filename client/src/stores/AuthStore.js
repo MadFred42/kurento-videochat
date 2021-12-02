@@ -46,8 +46,9 @@ export default class AuthStore {
 
     async registration(username, password) {
         try {
+            console.log(socket);
             socket.emit('registration', { username, password }, (res) => {
-                console.log(res);
+                
                 if (typeof(res) === 'string') {
                     return this.error = res;
                 }
