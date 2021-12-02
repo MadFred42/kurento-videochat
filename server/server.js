@@ -7,6 +7,7 @@ const io = useSocket(server);
 const cors = require('cors');
 const mongoose = require('mongoose');
 const userController = require('./controllers/userController');
+const roomController = require('./controllers/roomController');
 
 app.use(express.json());
 app.use(cors( { 
@@ -23,6 +24,8 @@ io.on('connection', (socket) => {
       console.log(res);
       return callback(res);
    });
+   
+   roomController.createRoom(socket, io);
 
    socket.on('disconnect', async () => {
       console.log('user disconnected');

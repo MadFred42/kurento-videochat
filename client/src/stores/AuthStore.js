@@ -1,7 +1,4 @@
-import axios from 'axios';
 import { makeAutoObservable, toJS } from 'mobx';
-import { baseURL } from '../http';
-import AuthService from '../services/AuthService';
 import socket from '../socket';
 
 export default class AuthStore {

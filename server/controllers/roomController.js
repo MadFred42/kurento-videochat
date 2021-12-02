@@ -1,16 +1,19 @@
 const roomModel = require('../models/roomModel');
 
 class RoomController {
-    async createRoom(req, res) {
+    async createRoom(socket, io) {
         try {
-            const room = await roomModel.findOne({});
-            if (room) {
-                return res.json(room);
-            }
-    
-            const newRoom = await roomModel.create({});
-    
-            return res.json(newRoom);  
+            socket.on('createroom', async (callback) => {
+                const room = await roomModel.findOne({});
+
+                if (room) {
+                    return res.json(room);
+                }
+        
+                const newRoom = await roomModel.create({});
+
+                return callback(newRoom);
+            });
         } catch (e) {
             console.log(e);
         }

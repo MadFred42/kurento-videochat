@@ -1,6 +1,5 @@
 import { makeAutoObservable, toJS } from 'mobx';
-import RoomService from '../services/RoomService';
-import AuthStore from './AuthStore';
+import socket from '../socket';
 
 export default class RoomStore {
 
@@ -20,8 +19,8 @@ export default class RoomStore {
     };
 
     async createRoom() {
-        const response = await RoomService.createRoom();
-        // this.room = response.data;
-        console.log(response);
+        socket.emit('createroom', res => {
+            console.log(res);
+        });
     };
 };
