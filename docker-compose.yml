@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo:4
+    restart: always
+
+  backend:
+    build: server
+    restart: always
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    environment:
+      - PORT=5000
+      - DB_URL=mongodb://mongo:27017/myFirstDatabase
+    ports:
+      - 4242:3000
+
+  frontend:
+    build: client
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=https://kurentochat-fl.staging.forasoft.com
+    ports:
+    - 6969:3000
+
+networks: 
+  default:
+    external:
+     name: demoserver_network_1
