@@ -4,31 +4,30 @@ services:
   mongo:
     image: mongo:4
     restart: always
+
+  backend:
+    build: server
+    restart: always
+    links:
+      - mongo
+    depends_on:
+      - mongo
     environment:
-      - DB_URL: mongodb+srv://fedorlyust:root@kurentovideochatfl.v1wxq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+      - PORT=5000
+      - DB_URL=mongodb://mongo:27017/myFirstDatabase
+    ports:
+      - 4242:3000
 
-backend:
-  build: backend
-  restart: always
-  links:
-    - mongo
-  depends_on:
-    - mongo
-  environment:
-    - PORT=5000
-  ports:
-    - 4242:3000
-
-frontend:
-  build: frontend
-  restart: always
-  depends_on:
-    - backend
-  environment:
-    - NODE_ENV=production
-    - REACT_APP_API_URL=https://kurentochat-fl/staging.forasoft.com
-  ports:
-  - 6969:3000
+  frontend:
+    build: client
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=https://kurentochat-fl/staging.forasoft.com
+    ports:
+    - 6969:3000
 
 networks: 
   default:
