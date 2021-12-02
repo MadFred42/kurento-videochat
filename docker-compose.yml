@@ -25,7 +25,7 @@ services:
       - backend
     environment:
       - NODE_ENV=production
-      - REACT_APP_API_URL=https://kurentochat-fl/staging.forasoft.com
+      - REACT_APP_API_URL=https://kurentochat-fl.staging.forasoft.com
     ports:
     - 6969:3000
 
