@@ -7,6 +7,7 @@ import { useLocalStorage } from 'react-use';
 import { Context } from '..';
 import { observer } from 'mobx-react-lite';
 import { Navigate } from 'react-router-dom';
+import { Grid } from '@mui/material';
 
 export const RoomPage = observer(() => {
     const { authStore } = useContext(Context);
@@ -19,10 +20,17 @@ export const RoomPage = observer(() => {
     }
 
     return (
-        <div>
+        <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            style={{ minHeight: '100vh' }}
+        >
             <VideoChatComponent />
             <MessageList />
             <MessageForm />
-        </div>
+        </Grid>
     );
 });
