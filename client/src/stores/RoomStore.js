@@ -1,4 +1,5 @@
 import { makeAutoObservable, toJS } from 'mobx';
+import { ACTIONS } from '../helpers/socketActions';
 import socket from '../socket';
 
 export default class RoomStore {
@@ -19,8 +20,8 @@ export default class RoomStore {
     };
 
     async createRoom() {
-        socket.emit('createroom', res => {
-            console.log(res);
+        socket.emit(ACTIONS.ROOM, res => {
+           this.room = res;
         });
     };
 };

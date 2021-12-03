@@ -1,9 +1,10 @@
+const ACTIONS = require('../helpers/socketActions');
 const roomModel = require('../models/roomModel');
 
 class RoomController {
     async createRoom(socket, io) {
         try {
-            socket.on('createroom', async (callback) => {
+            socket.on(ACTIONS.ROOM, async (callback) => {
                 const room = await roomModel.findOne({});
 
                 if (room) {

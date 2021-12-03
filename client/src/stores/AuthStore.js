@@ -1,4 +1,5 @@
 import { makeAutoObservable, toJS } from 'mobx';
+import { ACTIONS } from '../helpers/socketActions';
 import socket from '../socket';
 
 export default class AuthStore {
@@ -46,8 +47,8 @@ export default class AuthStore {
 
     async registration(username, password) {
         try {
-            socket.emit('registration', { username, password }, (res) => {
-                console.log(res);
+            socket.emit(ACTIONS.JOIN, { username, password }, (res) => {
+                
                 if (typeof(res) === 'string') {
                     return this.error = res;
                 }

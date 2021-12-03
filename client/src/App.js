@@ -7,7 +7,6 @@ import { AuthRoutes, PublicRoutes } from "./routes";
 const App = observer(() => {
   const { authStore, roomStore } = useContext(Context);
   
-  console.log(authStore.user);
   return (
     <Router className="App">
       <Routes>
