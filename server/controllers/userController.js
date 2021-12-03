@@ -12,6 +12,9 @@ class UserController {
             }
             const hashPassword = await bcrypt.hash(password, 5);
             const newUser = await userModel.create({ username, password: hashPassword, socketId: socket.id });
+            const room = await roomModel.findOne({});
+            room.users.push(newUser);
+            room.save();
 
             return await newUser.toDto();
         } catch (e) {
@@ -21,7 +24,11 @@ class UserController {
 
     async deleteUser (socketId) {
         try {
-            const user = await userModel.deleteOne({ socketId });
+            await userModel.deleteOne({ socketId });
+            const room = await roomModel.findOne({});
+            const userIndex = room.users.findIndex(user => user.socketId === socketId);
+            room.users.splice(userIndex, 1);
+            room.save();
         } catch (e) {
             console.log(e);
         }

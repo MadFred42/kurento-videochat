@@ -33,7 +33,7 @@ io.on(ACTIONS.CONNECT, (socket) => {
    messageController.getMessages(socket);
 
    socket.on(ACTIONS.DISCONNECT, async () => {
-      console.log('user disconnected');
+      console.log(`user ${socket.id} disconnected`);
 
       await userController.deleteUser(socket.id);
    })

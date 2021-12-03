@@ -23,6 +23,11 @@ class MessageController {
             socket.on(ACTIONS.ALL_MESSAGES, async (callback) => {
                 const room = await roomModel.findOne({});
 
+                if (!room) {
+                    return;
+                }
+
+
                 return callback(room.messages);
             });
         } catch (e) {

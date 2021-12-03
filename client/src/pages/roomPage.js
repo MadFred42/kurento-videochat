@@ -8,7 +8,11 @@ import { Navigate } from 'react-router-dom';
 import { Grid } from '@mui/material';
 
 export const RoomPage = observer(() => {
-    const { authStore, messageStore } = useContext(Context);
+    const { authStore, messageStore, roomStore } = useContext(Context);
+
+    useEffect(() => {
+        roomStore.createRoom();
+    }, []);
 
     useEffect(() => {
         messageStore.getMessages();
