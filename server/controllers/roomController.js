@@ -6,9 +6,9 @@ class RoomController {
         try {
             socket.on(ACTIONS.ROOM, async (callback) => {
                 const room = await roomModel.findOne({});
-
+                
                 if (room) {
-                    return res.json(room);
+                    return callback(room);
                 }
         
                 const newRoom = await roomModel.create({});
