@@ -16,7 +16,7 @@ export const RoomPage = observer(() => {
 
     useEffect(() => {
         messageStore.getMessages();
-    }, []);
+    }, [messageStore.messages]);
 
     if (authStore.error.length > 1) {
         authStore.isAuth = false;

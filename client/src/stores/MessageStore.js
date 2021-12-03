@@ -20,6 +20,7 @@ export default class MessageStore {
 
     async sendMessage(message) {
         socket.emit(ACTIONS.MESSAGE, { message }, (res) => {
+            console.log(res)
             this.messages = res;
         });
     };
