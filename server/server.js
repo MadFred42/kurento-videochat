@@ -8,6 +8,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const userController = require('./controllers/userController');
 const roomController = require('./controllers/roomController');
+const messageController = require('./controllers/messageController');
+const ACTIONS = require('./helpers/socketActions');
 
 app.use(express.json());
 app.use(cors( { 
@@ -16,18 +18,21 @@ app.use(cors( {
     methods: ["GET", "POST"]
  } ));
 
-io.on('connection', (socket) => {
+io.on(ACTIONS.CONNECT, (socket) => {
    console.log(`A user connected ${socket.id}`);
+   socket.join();
 
-   socket.on('registration', async (data, callback) => {
+   socket.on(ACTIONS.JOIN, async (data, callback) => {
       const res = await userController.registration(data.username, data.password, socket, io);
-      console.log(res);
       return callback(res);
    });
+
    
    roomController.createRoom(socket, io);
+   messageController.sendMessage(socket, io);
+   messageController.getMessages(socket);
 
-   socket.on('disconnect', async () => {
+   socket.on(ACTIONS.DISCONNECT, async () => {
       console.log('user disconnected');
 
       await userController.deleteUser(socket.id);
