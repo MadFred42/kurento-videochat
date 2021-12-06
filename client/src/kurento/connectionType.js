@@ -1,4 +1,4 @@
-export const CONNETION_TYPE = {
+export const CONNECTION_TYPE = {
     PUBLISH: 'publish',
     VIEW: 'view'
 };

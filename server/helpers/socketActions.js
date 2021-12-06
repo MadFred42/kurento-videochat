@@ -5,9 +5,10 @@ const ACTIONS = {
     ROOM: 'createroom',
     MESSAGE: 'message',
     ALL_MESSAGES: 'message:get',
+    ICE_CANDIDATE: 'iceCandidate',
     VIDEOCHAT_STATE: 'videoChat:state',
-    ICE_CANDIDATE: 'OnIceCandidates',
-    VIDEOCHAT_ICE: 'videoChat:iceCandidate'
+    VIDEOCHAT_ICE: 'videoChat:iceCandidate',
+    OFFER: 'offer',
 };
 
 module.exports = ACTIONS;

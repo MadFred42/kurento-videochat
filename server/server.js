@@ -10,6 +10,8 @@ const userController = require('./controllers/userController');
 const roomController = require('./controllers/roomController');
 const messageController = require('./controllers/messageController');
 const ACTIONS = require('./helpers/socketActions');
+const publish = require('./controllers/videoController');
+const videoService = require('./services/videoService');
 
 app.use(express.json());
 app.use(cors( { 
@@ -27,7 +29,14 @@ io.on(ACTIONS.CONNECT, (socket) => {
       return callback(res);
    });
 
-   
+   socket.on(ACTIONS.OFFER, async (data, callback) => {
+      return await publish(io, socket, data, callback);
+   });
+
+   socket.on(ACTIONS.ICE_CANDIDATE, async (data, callback) => {
+      const res = await videoService.iceCandidate({ candidate: data.candidate, callId: data.callId });
+   })
+
    roomController.createRoom(socket, io);
    messageController.sendMessage(socket, io);
    messageController.getMessages(socket);
@@ -39,7 +48,7 @@ io.on(ACTIONS.CONNECT, (socket) => {
    })
 });
 
- const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 const start = async () => {
    try {

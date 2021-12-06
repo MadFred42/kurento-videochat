@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { Context } from './';
 import { observer } from 'mobx-react-lite';
 import { AuthRoutes, PublicRoutes } from "./routes";
+import webRtcController from "./kurento/webRtcController";
 
 const App = observer(() => {
   const { authStore, roomStore } = useContext(Context);

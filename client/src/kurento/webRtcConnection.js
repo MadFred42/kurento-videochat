@@ -1,16 +1,23 @@
 import adapter from 'webrtc-adapter';
-import { getConstrains } from './constrains';
+import { getConstraints } from './constraints';
 import { getUserMedia } from './getUserMedia';
+import socket from '../socket';
+import { ACTIONS } from '../helpers/socketActions';
+import socketEmit from '../helpers/socketEmit';
 
-class WebRtcConnection {
+export default class WebRtcConnection {
     constructor(data) {
         this.callId = data.callId;
         this.type = data.type;
         this.iceServers = data.iceServers;
+        this.sdpAnswerSet = false;
+        this.onGotOffer = (offer, callId) => socketEmit(ACTIONS.OFFER, { offer, callId });
+        this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate: candidate.candidate });
     };
 
     createPeerConnection = async () => {
-        this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
+        // this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
+        this.peerConnection = new RTCPeerConnection();
         this.peerConnection.onicecandidate = e => e.candidate && this.onGotCandidate(this.callId, e.candidate);
 
         if (this.type !== 'publish') {
@@ -20,11 +27,14 @@ class WebRtcConnection {
                 this.onGotStream({ stream: this.stream });
             }
         }
+        const state = this.peerConnection.iceConnectionState;
+        console.log(state)
     };
 
     generateLocalStream = async () => {
-        const constrains = getConstrains();
+        const constrains = getConstraints();
         this.localStream = await getUserMedia(constrains);
+        console.log(this.localStream)
         this.onGotLocalStream?.(this.localStream);
     };
 
@@ -47,5 +57,3 @@ class WebRtcConnection {
         await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     };
 };
-
-export default new WebRtcConnection();

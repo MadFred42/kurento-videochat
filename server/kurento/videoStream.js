@@ -1,32 +1,39 @@
 const ACTIONS = require("../helpers/socketActions");
+const IceCandidate = require('kurento-client-elements/lib/complexTypes/IceCandidate');
 
 class VideoStream {
     constructor(data) {
         this.callId = data.callId;
         this.endpoint = data.endpoint;
-        this.endpoint.on(ACTIONS.ICE_CANDIDATE, e => data.onIceCandidate(IceCandidage(e.candidate)));
+        this.endpoint.on("OnIceCandidate", event => {
+            data.onIceCandidate(IceCandidate(event.candidate))
+        });
+    };
+    // 
+    async processOffer(offer) {
+        return await this.endpoint.processOffer(offer);
     };
 
-    processOffer = async (offer) => this.endpoint.processOffer(offer);
-
-    gatherCandidates = async () => {
+    async gatherCandidates() {
         await this.endpoint.gatherCandidates(); 
     };
 
-    configureEndpoint = async () => {
-        const iceServers = await IceServersProvider.getIceServerForKurento();
+    async configureEndpoint() {
+        const iceServers = await IceServersProvider.getIceServerForKurento(); //непонятно, что за функция
         await this.endpoint.setStunServerAddress(iceServers.stun.ip);
         await this.endpoint.setStunServerPort(iceServers.stun.port);
         await this.endpoint.setTurnUrl(iceServers.turn);
     };
 
-    addCandidates = (candidates) => {
+    addCandidates(candidates) {
+        console.log(`ADDINT CANDIDATES: ${candidates}`)
         candidates.forEach(candidate => this.addCandidate(candidate));        
     };
 
-    addCandidate = async (candidate) => {
+    async addCandidate(candidate) {
+        console.log(`ADDINT CANDIDATE: ${candidate}`)
         await this.endpoint.addIceCandidate(IceCandidate(candidate));
     };
 };
 
-module.exports = new VideoStream();
+module.exports = VideoStream;

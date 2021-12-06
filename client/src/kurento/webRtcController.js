@@ -1,11 +1,30 @@
-import { CONNETION_TYPE } from "./connectionType";
+import { CONNECTION_TYPE } from "./connectionType";
 import webRtcConnection from "./webRtcConnection";
 
-class WebRtcController {
+export default class WebRtcController {
 
-    constructor(data) {
-        this.connection = data.connection;
+    constructor() {
+        this.connections = {};
+        this.candidateQueue = {};
     }
+
+    createPublishConnection = async (data) => {
+        const connection = new webRtcConnection({ ...data, type: CONNECTION_TYPE.PUBLISH });
+
+        await connection.generateLocalStream();
+        await connection.createPeerConnection();
+        await connection.createOffer();
+        this.connections[connection.callId] = connection;
+    };
+
+    createViewConnection = async (data) => {
+        const connection = new webRtcConnection({ ...data, type: CONNECTION_TYPE.VIEW });
+
+        await connection.createPeerConnection();
+        await connection.createOffer();
+
+        this.connections[connection.callId] = connection;
+    };
 
     addIceCandidate = async ({ candidate, callId }) => {
         const connection = this.connection[callId];
@@ -31,25 +50,4 @@ class WebRtcController {
             delete this.candidateQueue[callId];
         }
     };  
-
-    createPublishConnection = async (data) => {
-        const connection = webRtcConnection({ ...data, type: CONNETION_TYPE.PUBLISH });
-
-        await connection.generateLocalStream();
-        await connection.createPeerConnection();
-        await connection.createOffer();
-
-        this.connections[connection.callId] = connection;
-    };
-
-    createViewConnection = async (data) => {
-        const connection = webRtcConnection({ ...data, type: CONNETION_TYPE.VIEW });
-
-        await connection.createPeerConnection();
-        await connection.createOffer();
-
-        this.connections[connection.callId] = connection;
-    }
 };
-
-export default new WebRtcController();

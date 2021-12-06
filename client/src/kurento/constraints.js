@@ -1,4 +1,4 @@
-export const getConstrains = () => {
+export const getConstraints = () => {
 
     return {
         audio: true,
