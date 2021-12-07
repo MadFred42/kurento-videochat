@@ -6,13 +6,18 @@ import { ACTIONS } from '../helpers/socketActions';
 import socketEmit from '../helpers/socketEmit';
 
 export default class WebRtcConnection {
+
     constructor(data) {
         this.callId = data.callId;
         this.type = data.type;
         this.iceServers = data.iceServers;
         this.sdpAnswerSet = false;
-        this.onGotOffer = (offer, callId) => socket.emit(ACTIONS.OFFER, { offer, callId }, (callback) => data.getAnswer(callback));
+        this.onGotOffer = (offer, callId, type) => socket.emit(type === 'publish' ? ACTIONS.OFFER_PUBLISH : ACTIONS.OFFER_VIEW, { offer, callId }, (callback) => data.getAnswer(callback));
         this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate });
+        this.onGotLocalStream = (stream) => {
+            console.log(stream)
+            socket.emit(ACTIONS.LOCAL_STREAM, { id: stream.id, active: stream.active} )
+        };
     };
 
     createPeerConnection = async () => {
@@ -27,23 +32,31 @@ export default class WebRtcConnection {
                 this.onGotStream({ stream: this.stream });
             }
         }
-
-        console.log(this.peerConnection.iceConnectionState);
+        this.peerConnection.onconnectionstatechange = this.onIceConnectionsStateChange;
     };
 
+    onGotStream = (stream) => {
+        console.log(stream)
+    };
+
+    onIceConnectionsStateChange = (state) => {
+        console.log('ice connection state change:', state);
+        ///// console.log('iceConnectionState: ', this.peerConnection.iceConnectionState);
+    }
+
     generateLocalStream = async () => {
-        const constrains = getConstraints();
-        this.localStream = await getUserMedia(constrains);
+        const constraints = getConstraints();
+        this.localStream = await getUserMedia(constraints);
         this.onGotLocalStream?.(this.localStream);
     };
 
-    createOffer = async () => {
+    createOffer = async (type) => {
         if (this.localStream) {
             this.peerConnection.addStream(new MediaStream(this.localStream.getTracks()));
         }
         const offer = await this.peerConnection.createOffer();
         await this.peerConnection.setLocalDescription(offer);
-        this.onGotOffer?.(offer.sdp, this.callId);
+        this.onGotOffer?.(offer.sdp, this.callId, type);
     };
 
     addAnswer = async (sdp) => {

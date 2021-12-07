@@ -6,26 +6,31 @@ export default class WebRtcController {
     constructor() {
         this.connections = {};
         this.candidateQueue = {};
+        this.localStream = {};
     }
 
     createPublishConnection = async (data) => {
         const connection = new webRtcConnection({
             ...data, 
             type: CONNECTION_TYPE.PUBLISH, 
-            getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }) 
+            getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }),
         });
 
         await connection.generateLocalStream();
         await connection.createPeerConnection();
-        await connection.createOffer();
+        await connection.createOffer('publish');
         this.connections[connection.callId] = connection;
     };
 
     createViewConnection = async (data) => {
-        const connection = new webRtcConnection({ ...data, type: CONNECTION_TYPE.VIEW });
+        const connection = new webRtcConnection({
+            ...data, 
+            type: CONNECTION_TYPE.VIEW,
+            getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }),
+        });
 
         await connection.createPeerConnection();
-        await connection.createOffer();
+        await connection.createOffer('view');
 
         this.connections[connection.callId] = connection;
     };

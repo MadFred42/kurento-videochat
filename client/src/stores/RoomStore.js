@@ -24,4 +24,8 @@ export default class RoomStore {
            this.room = res;
         });
     };
+
+    handShake(roomId) {
+        socket.query = { roomId }
+    };
 };

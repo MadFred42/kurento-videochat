@@ -7,6 +7,11 @@ import webRtcController from "./kurento/webRtcController";
 
 const App = observer(() => {
   const { authStore, roomStore } = useContext(Context);
+  const roomId = 'room';
+
+  useEffect(() => {
+    roomStore.handShake(roomId);
+  }, []);
   
   return (
     <Router className="App">

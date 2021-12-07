@@ -11,7 +11,9 @@ const roomController = require('./controllers/roomController');
 const messageController = require('./controllers/messageController');
 const ACTIONS = require('./helpers/socketActions');
 const publish = require('./controllers/videoController');
+const view = require('./controllers/videoController');
 const videoService = require('./services/videoService');
+const Room = require('./services/room');
 
 app.use(express.json());
 app.use(cors( { 
@@ -22,22 +24,32 @@ app.use(cors( {
 
 io.on(ACTIONS.CONNECT, (socket) => {
    console.log(`A user connected ${socket.id}`);
-   socket.join();
-
+   socket.join('room');
+   
    socket.on(ACTIONS.JOIN, async (data, callback) => {
       const res = await userController.registration(data.username, data.password, socket, io);
       return callback(res);
    });
 
-   socket.on(ACTIONS.OFFER, async (data, callback) => {
+   socket.on(ACTIONS.LOCAL_STREAM, data => {
+      console.log(data)
+      socket.room = new Room(data);
+   });
+
+   socket.on(ACTIONS.OFFER_PUBLISH, async (data, callback) => {
       const res = await publish(io, socket, data, callback);
-      
+
+      return callback(res);
+   });
+   
+   socket.on(ACTIONS.OFFER_VIEW, async (data, callback) => {
+      const res = await view(io, socket, data, callback);
       return callback(res);
    });
 
    socket.on(ACTIONS.ICE_CANDIDATE, async (data, callback) => {
       const res = await videoService.iceCandidate({ candidate: data.candidate, callId: data.callId });
-   })
+   });
 
    roomController.createRoom(socket, io);
    messageController.sendMessage(socket, io);

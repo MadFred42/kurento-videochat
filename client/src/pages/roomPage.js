@@ -9,7 +9,7 @@ import { Grid } from '@mui/material';
 
 export const RoomPage = observer(() => {
     const { authStore, messageStore, roomStore } = useContext(Context);
-
+    
     useEffect(() => {
         roomStore.createRoom();
     }, []);

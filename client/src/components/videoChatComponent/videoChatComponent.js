@@ -14,7 +14,7 @@ export const VideoChatComponent = () => {
 
         webRtcController.createViewConnection({
             callId
-        })
+        });
     }, []);
 
     useEffect(() => {

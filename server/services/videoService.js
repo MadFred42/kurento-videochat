@@ -18,6 +18,7 @@ class VideoService {
     };
 
     async view(socket, { offer, callId, publishCallId }) {
+        console.log(publishCallId)
         const publishStream = this.videoStreams[publishCallId];
         if (!publishStream) {
             throw { message: 'Invalid call id' };

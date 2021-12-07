@@ -5,6 +5,8 @@ export const ACTIONS = {
     ALL_MESSAGES: 'message:get',
     VIDEOCHAT_STATE: 'videoChat:state',
     ICE_CANDIDATE: 'iceCandidate',
-    OFFER: 'offer',
+    OFFER_PUBLISH: 'offer:publish',
+    OFFER_VIEW: 'offer:view',
     VIDEOCHAT_ICE: 'videoChat:iceCandidate',
+    LOCAL_STREAM: 'localStream'
 };
