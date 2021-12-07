@@ -9,7 +9,11 @@ export default class WebRtcController {
     }
 
     createPublishConnection = async (data) => {
-        const connection = new webRtcConnection({ ...data, type: CONNECTION_TYPE.PUBLISH });
+        const connection = new webRtcConnection({
+            ...data, 
+            type: CONNECTION_TYPE.PUBLISH, 
+            getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }) 
+        });
 
         await connection.generateLocalStream();
         await connection.createPeerConnection();
@@ -27,7 +31,8 @@ export default class WebRtcController {
     };
 
     addIceCandidate = async ({ candidate, callId }) => {
-        const connection = this.connection[callId];
+        console.log(candidate)
+        const connection = this.connections[callId];
 
         if (connection && connection.sdpAnswerSet) {
             return await connection.addIceCandidate(candidate);
@@ -38,7 +43,7 @@ export default class WebRtcController {
     };
 
     addAnswer = async ({ answer, callId }) => {
-        const connection = this.connection[callId];
+        const connection = this.connections[callId];
         await connection.addAnswer(answer);
         const candidateQueue = this.candidateQueue[callId];
 

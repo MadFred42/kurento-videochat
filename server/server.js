@@ -30,7 +30,9 @@ io.on(ACTIONS.CONNECT, (socket) => {
    });
 
    socket.on(ACTIONS.OFFER, async (data, callback) => {
-      return await publish(io, socket, data, callback);
+      const res = await publish(io, socket, data, callback);
+      
+      return callback(res);
    });
 
    socket.on(ACTIONS.ICE_CANDIDATE, async (data, callback) => {

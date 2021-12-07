@@ -11,8 +11,8 @@ export default class WebRtcConnection {
         this.type = data.type;
         this.iceServers = data.iceServers;
         this.sdpAnswerSet = false;
-        this.onGotOffer = (offer, callId) => socketEmit(ACTIONS.OFFER, { offer, callId });
-        this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate: candidate.candidate });
+        this.onGotOffer = (offer, callId) => socket.emit(ACTIONS.OFFER, { offer, callId }, (callback) => data.getAnswer(callback));
+        this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate });
     };
 
     createPeerConnection = async () => {
@@ -27,14 +27,13 @@ export default class WebRtcConnection {
                 this.onGotStream({ stream: this.stream });
             }
         }
-        const state = this.peerConnection.iceConnectionState;
-        console.log(state)
+
+        console.log(this.peerConnection.iceConnectionState);
     };
 
     generateLocalStream = async () => {
         const constrains = getConstraints();
         this.localStream = await getUserMedia(constrains);
-        console.log(this.localStream)
         this.onGotLocalStream?.(this.localStream);
     };
 
