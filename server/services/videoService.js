@@ -10,7 +10,8 @@ class VideoService {
 
     async publish(socket, { offer, callId }) {
         const { videoStream, answer } = await this.createUserStream(socket, { callId, offer });
-        // socket.to(socket.id).addPublishStream(videoStream);
+        socket.user.addPublishStream(videoStream);
+
         return {
             answer,
             callId
@@ -23,12 +24,10 @@ class VideoService {
         if (!publishStream) {
             throw { message: 'Invalid call id' };
         }
-
         const { videoStream, answer } = await this.createUserStream(socket, { callId, offer });
         // socket.to(socket.id).addPublishStream(videoStream);
 
         await publishStream.endpoint.connect(videoStream.endpoint);
-
         return {
             answer,
             callId            
@@ -48,7 +47,6 @@ class VideoService {
         this.videoStreams[callId] = videoStream;
         
         if (this.candidateQueue[callId]) {
-            console.log(this.candidateQueue[callId])
             videoStream.addCandidates(this.candidateQueue[callId]);
             delete this.candidateQueue[callId];
         }

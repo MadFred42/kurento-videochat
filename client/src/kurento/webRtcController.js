@@ -15,7 +15,7 @@ export default class WebRtcController {
             type: CONNECTION_TYPE.PUBLISH, 
             getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }),
         });
-
+        console.log(data.callId);
         await connection.generateLocalStream();
         await connection.createPeerConnection();
         await connection.createOffer('publish');
@@ -28,7 +28,6 @@ export default class WebRtcController {
             type: CONNECTION_TYPE.VIEW,
             getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }),
         });
-
         await connection.createPeerConnection();
         await connection.createOffer('view');
 
@@ -36,7 +35,6 @@ export default class WebRtcController {
     };
 
     addIceCandidate = async ({ candidate, callId }) => {
-        console.log(candidate)
         const connection = this.connections[callId];
 
         if (connection && connection.sdpAnswerSet) {
@@ -51,7 +49,7 @@ export default class WebRtcController {
         const connection = this.connections[callId];
         await connection.addAnswer(answer);
         const candidateQueue = this.candidateQueue[callId];
-
+        console.log('got the answer')
         if (candidateQueue) {
             for (let i = 0; i < candidateQueue.length; i++) {
                 await connection.addIceCandidate(candidateQueue[i]);

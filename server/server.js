@@ -13,7 +13,7 @@ const ACTIONS = require('./helpers/socketActions');
 const publish = require('./controllers/videoController');
 const view = require('./controllers/videoController');
 const videoService = require('./services/videoService');
-const Room = require('./services/room');
+const videoController = require('./controllers/videoController');
 
 app.use(express.json());
 app.use(cors( { 
@@ -32,23 +32,39 @@ io.on(ACTIONS.CONNECT, (socket) => {
    });
 
    socket.on(ACTIONS.LOCAL_STREAM, data => {
-      console.log(data)
-      socket.room = new Room(data);
+      socket.user = {
+         id: data.callId,
+         addPublishStream: (stream) => {
+            socket.user.streams = [
+               ...(socket.user.streams || []),
+               { ...stream }
+            ];
+         },
+         addViewStream: ({ videoStream, publishCallId }) => {
+            socket.user.streams = [
+               ...(socket.user.streams || []),
+               { ...videoStream, publishCallId }
+            ];
+         }
+      }
+
+      // socket.room = new Room(data);
    });
 
    socket.on(ACTIONS.OFFER_PUBLISH, async (data, callback) => {
-      const res = await publish(io, socket, data, callback);
-
-      return callback(res);
+      const res = await videoController.publish(io, socket, data);
+      callback(res);
    });
    
    socket.on(ACTIONS.OFFER_VIEW, async (data, callback) => {
-      const res = await view(io, socket, data, callback);
+      const res = await videoController.view(io, socket, data);
       return callback(res);
    });
 
    socket.on(ACTIONS.ICE_CANDIDATE, async (data, callback) => {
       const res = await videoService.iceCandidate({ candidate: data.candidate, callId: data.callId });
+      
+      callback(res);
    });
 
    roomController.createRoom(socket, io);

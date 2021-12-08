@@ -1,19 +1,25 @@
 const ACTIONS = require ("../helpers/socketActions");
+const roomModel = require("../models/roomModel");
+const Room = require("../services/room");
 const videoService = require("../services/videoService");
 
-const publish = async (io, socket, data) => {
-    const { offer, callId } = data;
+exports.publish = async function(io, socket, data) {
+    const { offer, callId, type } = data;
     const response = await videoService.publish(socket, { offer, callId }); 
-    const res = socket.room.getVideoState();
-    console.log(res);
-    // io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: socket.room.getVideoState() });
+    socket.room = {
+        getVideoState: async () => {
+            const all = await io.fetchSockets();
+            return all.map(user => user.user);
+        }
+    }
+    io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: await socket.room.getVideoState() });
     
     return response;
 };
 
-module.exports = view = async (io, socket, data) => {
-    const { offer, callId } = data;
-    const response = await videoService.publish(socket, { offer, callId }); 
-}
+exports.view = async function(io, socket, data) {
+    const { offer, callId, publishCallId } = data;
+    const response = await videoService.view(socket, { offer, callId, publishCallId }); 
 
-module.exports = publish;
+    return response
+};

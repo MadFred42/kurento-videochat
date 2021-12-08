@@ -1,13 +1,12 @@
 module.exports = class Room {
 
-    constructor(data) {
-        console.log(data)
-        this.stream = data;
+    constructor() {
+        this.users = [];
     }
 
-    getVideoState() {
-        const streams = [...this.stream];
-
-        return streams;
-    }
+    getVideoState(callId) {
+        this.users.push(...this.users, callId);
+        console.log(this.users);
+        return this.users;
+    };
 }
