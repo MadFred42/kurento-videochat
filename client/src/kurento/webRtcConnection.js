@@ -4,6 +4,7 @@ import { getUserMedia } from './getUserMedia';
 import socket from '../socket';
 import { ACTIONS } from '../helpers/socketActions';
 import socketEmit from '../helpers/socketEmit';
+import { VideoChatComponent } from '../components/videoChatComponent/videoChatComponent';
 
 export default class WebRtcConnection {
 
@@ -21,7 +22,7 @@ export default class WebRtcConnection {
              }, (callback) => data.getAnswer(callback)
         );
         this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate });
-        this.onGotLocalStream = (stream) => socket.emit(ACTIONS.LOCAL_STREAM, { id: stream.id, active: stream.active, callId: this.callId });
+        this.onGotLocalStream = (stream) => socket.emit(ACTIONS.LOCAL_STREAM, { stream });
     };
 
     createPeerConnection = async () => {
@@ -56,9 +57,17 @@ export default class WebRtcConnection {
 
     createOffer = async (type) => {
         if (this.localStream) {
-            this.peerConnection.addStream(new MediaStream(this.localStream.getTracks()));
+            this.localStream.getTracks().forEach(track => this.peerConnection.addTrack(track));
+            
         }
-        const offer = await this.peerConnection.createOffer();
+        let offer;
+        
+        if (type === 'view') {
+            offer = await this.peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+        } else {
+            offer = await this.peerConnection.createOffer();
+        }
+        
         await this.peerConnection.setLocalDescription(offer);
         this.onGotOffer?.(offer.sdp, this.callId, type);
     };

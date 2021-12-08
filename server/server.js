@@ -32,6 +32,10 @@ io.on(ACTIONS.CONNECT, (socket) => {
    });
 
    socket.on(ACTIONS.LOCAL_STREAM, data => {
+      socket.emit('stream:client', {data});
+   });
+
+   socket.on(ACTIONS.OFFER_PUBLISH, async (data, callback) => {
       socket.user = {
          id: data.callId,
          addPublishStream: (stream) => {
@@ -47,11 +51,6 @@ io.on(ACTIONS.CONNECT, (socket) => {
             ];
          }
       }
-
-      // socket.room = new Room(data);
-   });
-
-   socket.on(ACTIONS.OFFER_PUBLISH, async (data, callback) => {
       const res = await videoController.publish(io, socket, data);
       callback(res);
    });

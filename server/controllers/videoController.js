@@ -19,6 +19,7 @@ exports.publish = async function(io, socket, data) {
 
 exports.view = async function(io, socket, data) {
     const { offer, callId, publishCallId } = data;
+    console.log(offer);
     const response = await videoService.view(socket, { offer, callId, publishCallId }); 
 
     return response

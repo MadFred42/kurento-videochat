@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import WebRtcController from '../../kurento/webRtcController';
 import { v4 } from 'uuid';
 import { ACTIONS } from '../../helpers/socketActions';
@@ -6,10 +6,13 @@ import socket from '../../socket';
 import differenceWith from 'lodash/differenceWith'
 
 export const VideoChatComponent = () => {
-    const [videoChatState, setVideoChatState] = useState([]);
+    const [stream, setStream] = useState([]);
     const [currentUser, setCurrentUser] = useState('')
     const webRtcController = new WebRtcController();
+    const videoRef = useRef();
+
     useEffect(() => {
+        console.log('publish')
         publishStream();
     }, []);
 
@@ -18,12 +21,17 @@ export const VideoChatComponent = () => {
             setCurrentUser(data.callId)
             await webRtcController.addIceCandidate({ candidate: data.candidate, callId: data.callId });
         });
-        socket.on(ACTIONS.VIDEOCHAT_STATE, data => setVideoChatState(data));
+        socket.on('stream:client', data => setStream(data.stream));
     }, []);
     
     useEffect(() => {
         viewStream(currentUser);
-    }, [currentUser]);
+    }, []);
+
+    useEffect(() => {
+        console.log(stream)
+        videoRef.current.srcObject = stream; 
+    }, [stream]);
     
     // const porcessVideoChatState =  async () => {
     //     let allStreamsToView = [];
@@ -80,7 +88,12 @@ export const VideoChatComponent = () => {
     
     return (
         <div>
-            VideoChatComponent
+            <video 
+                ref={videoRef}
+                autoPlay
+            >
+
+            </video>
         </div>
     );
 };
