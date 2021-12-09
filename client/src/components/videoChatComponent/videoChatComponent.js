@@ -5,6 +5,7 @@ import { ACTIONS } from '../../helpers/socketActions';
 import socket from '../../socket';
 import differenceWith from 'lodash/differenceWith'
 import { UserVideo } from './userVideo/userVideo';
+import { Grid } from '@mui/material';
 
 export const VideoChatComponent = () => {
     const [videoStreams, setVideoStreams] = useState([]);
@@ -98,13 +99,16 @@ export const VideoChatComponent = () => {
     }, []);
     
     return (
-        <div>
+        <Grid 
+            container rowSpacing={1} 
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+        >
             {videoStreams.map((stream, i) => (
                 <UserVideo
                     key={i}
                     stream={stream.localStream} />
             ))}
-        </div>
+        </Grid>
     );
 };
 

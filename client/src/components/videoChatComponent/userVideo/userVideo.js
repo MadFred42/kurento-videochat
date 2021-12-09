@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react';
+import { Grid } from '@mui/material';
 
 export const UserVideo = ({ stream }) => {
     const videoRef = useRef();
@@ -12,16 +13,17 @@ export const UserVideo = ({ stream }) => {
         videoRef.current.srcObject = stream.localStream;
         videoRef.current.play();
         
-    }, [videoRef]);
+    }, [videoRef, stream]);
 
 
     return (
-        <div>
+        <Grid item xs={6}>
             <video
                 autoPlay
+                muted
                 playsInline
                 preload="none"
                 ref={videoRef} />
-        </div>
+        </Grid>
     )
 };
