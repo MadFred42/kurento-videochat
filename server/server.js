@@ -10,8 +10,6 @@ const userController = require('./controllers/userController');
 const roomController = require('./controllers/roomController');
 const messageController = require('./controllers/messageController');
 const ACTIONS = require('./helpers/socketActions');
-const publish = require('./controllers/videoController');
-const view = require('./controllers/videoController');
 const videoService = require('./services/videoService');
 const videoController = require('./controllers/videoController');
 
@@ -36,6 +34,12 @@ io.on(ACTIONS.CONNECT, (socket) => {
    });
 
    socket.on(ACTIONS.OFFER_PUBLISH, async (data, callback) => {
+      socket.room = {
+          getVideoState: async () => {
+              const all = await io.fetchSockets();
+              return all.map(user => user.user);
+          }
+      };
       socket.user = {
          id: data.callId,
          addPublishStream: (stream) => {
@@ -50,7 +54,7 @@ io.on(ACTIONS.CONNECT, (socket) => {
                { ...videoStream, publishCallId }
             ];
          }
-      }
+      };
       const res = await videoController.publish(io, socket, data);
       callback(res);
    });
@@ -81,11 +85,12 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
    try {
+      console.log(process.env.DB_URL)
       mongoose.connect(process.env.DB_URL);
       server.listen(PORT, () => console.log(`Server started on ${PORT} port`));
    } catch (e) {
       console.log(e)
-   }
+   };
 };
 
 start();

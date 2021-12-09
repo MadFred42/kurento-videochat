@@ -4,36 +4,69 @@ import { v4 } from 'uuid';
 import { ACTIONS } from '../../helpers/socketActions';
 import socket from '../../socket';
 import differenceWith from 'lodash/differenceWith'
+import { UserVideo } from './userVideo/userVideo';
 
 export const VideoChatComponent = () => {
-    const [stream, setStream] = useState([]);
+    const [videoStreams, setVideoStreams] = useState({});
     const [currentUser, setCurrentUser] = useState('')
     const webRtcController = new WebRtcController();
     const videoRef = useRef();
+    const publishCallidRef = useRef();
 
     useEffect(() => {
-        console.log('publish')
         publishStream();
     }, []);
 
     useEffect(() => {
         socket.on(ACTIONS.VIDEOCHAT_ICE, async data =>  {
-            setCurrentUser(data.callId)
             await webRtcController.addIceCandidate({ candidate: data.candidate, callId: data.callId });
         });
-        socket.on('stream:client', data => setStream(data.stream));
     }, []);
     
     useEffect(() => {
         viewStream(currentUser);
-    }, []);
+    }, [currentUser]);
 
     useEffect(() => {
-        console.log(stream)
-        videoRef.current.srcObject = stream; 
-    }, [stream]);
+        console.log(socket);
+    }, []);  
+  
+    const publishStream = useCallback(async () => {
+        const callId = v4();
+        await webRtcController.createPublishConnection({
+            callId,
+            onGotLocalStream: (stream) => onGotUserVideoStream(stream)
+            // userId: videoChatMember.id,
+        });
+    }, []);
     
-    // const porcessVideoChatState =  async () => {
+    const viewStream = useCallback(async (publishCallId) => {
+        const callId = v4();
+        await webRtcController.createViewConnection({
+            callId,
+            publishCallId
+        });
+    }, []);
+
+    const onGotUserVideoStream = useCallback((stream) => {
+        setVideoStreams((stream) => ([
+            ...stream,
+            {
+                localStream: stream
+            }
+        ]));
+    }, []);
+    
+    return (
+        <div>
+            <UserVideo streams={videoStreams} />
+        </div>
+    );
+};
+
+
+
+  // const porcessVideoChatState =  async () => {
     //     let allStreamsToView = [];
     //     console.log(videoChatState);
     //     for (let i = 0; i < videoChatState.length; i++) {
@@ -67,33 +100,3 @@ export const VideoChatComponent = () => {
     //         }
     //     }
     // };
-
-    const publishStream = useCallback(async () => {
-        console.log('go publish')
-        const callId = v4();
-        await webRtcController.createPublishConnection({
-            callId,
-            // userId: videoChatMember.id,
-        });
-    }, []);
-    
-    const viewStream = useCallback(async (publishCallId) => {
-        console.log(publishCallId)
-        const callId = v4();
-        await webRtcController.createViewConnection({
-            callId,
-            publishCallId
-        });
-    }, []);
-    
-    return (
-        <div>
-            <video 
-                ref={videoRef}
-                autoPlay
-            >
-
-            </video>
-        </div>
-    );
-};

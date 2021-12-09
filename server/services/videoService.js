@@ -19,7 +19,6 @@ class VideoService {
     };
 
     async view(socket, { offer, callId, publishCallId }) {
-        console.log(publishCallId)
         const publishStream = this.videoStreams[publishCallId];
         if (!publishStream) {
             throw { message: 'Invalid call id' };
@@ -32,7 +31,7 @@ class VideoService {
         return {
             answer,
             callId            
-        }
+        };
     };
 
     async createUserStream(socket, { callId, offer }) {
@@ -41,7 +40,9 @@ class VideoService {
         const videoStream = new VideoStream({
             callId,
             endpoint,
-            onIceCandidate: candidate => socket.emit(ACTIONS.VIDEOCHAT_ICE, { candidate, callId }),
+            onIceCandidate: candidate => {
+                socket.emit(ACTIONS.VIDEOCHAT_ICE, { candidate, callId })
+            },
         });
 
         // await videoStream.configureEndpoint();

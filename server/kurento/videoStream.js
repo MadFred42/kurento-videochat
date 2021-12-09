@@ -5,7 +5,9 @@ class VideoStream {
     constructor(data) {
         this.callId = data.callId;
         this.endpoint = data.endpoint;
-        this.endpoint.on("OnIceCandidate", event => data.onIceCandidate(IceCandidate(event.candidate)));
+        this.endpoint.on("OnIceCandidate", event => {
+            data.onIceCandidate(IceCandidate(event.candidate))
+        });
     };
     // 
     async processOffer(offer) {

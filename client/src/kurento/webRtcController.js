@@ -1,3 +1,4 @@
+import { ACTIONS } from "../helpers/socketActions";
 import { CONNECTION_TYPE } from "./connectionType";
 import webRtcConnection from "./webRtcConnection";
 
@@ -15,10 +16,10 @@ export default class WebRtcController {
             type: CONNECTION_TYPE.PUBLISH, 
             getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }),
         });
-        console.log(data.callId);
+        
         await connection.generateLocalStream();
         await connection.createPeerConnection();
-        await connection.createOffer('publish');
+        await connection.createOffer();
         this.connections[connection.callId] = connection;
     };
 
@@ -29,7 +30,7 @@ export default class WebRtcController {
             getAnswer: callback => this.addAnswer({ answer: callback.answer, callId: callback.callId }),
         });
         await connection.createPeerConnection();
-        await connection.createOffer('view');
+        await connection.createOffer();
 
         this.connections[connection.callId] = connection;
     };

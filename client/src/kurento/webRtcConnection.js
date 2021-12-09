@@ -16,13 +16,13 @@ export default class WebRtcConnection {
         this.onGotOffer = (offer, callId, type) => socket.emit(
             type === 'publish' ? ACTIONS.OFFER_PUBLISH : ACTIONS.OFFER_VIEW, { 
                 offer, 
-                callId, 
+                callId,     
                 type, 
                 publishCallId: data.publishCallId,
              }, (callback) => data.getAnswer(callback)
         );
         this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate });
-        this.onGotLocalStream = (stream) => socket.emit(ACTIONS.LOCAL_STREAM, { stream });
+        this.onGotLocalStream = (stream) => data.onGotLocalStream(stream);
     };
 
     createPeerConnection = async () => {
@@ -54,22 +54,18 @@ export default class WebRtcConnection {
         this.localStream = await getUserMedia(constraints);
         this.onGotLocalStream?.(this.localStream);
     };
-
-    createOffer = async (type) => {
+    // {
+    //     offerToReceiveAudio: this.type === 'view', 
+    //     offerToReceiveVideo: this.type === 'view'
+    // }
+    createOffer = async () => {
         if (this.localStream) {
             this.localStream.getTracks().forEach(track => this.peerConnection.addTrack(track));
             
         }
-        let offer;
-        
-        if (type === 'view') {
-            offer = await this.peerConnection.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
-        } else {
-            offer = await this.peerConnection.createOffer();
-        }
-        
+        const offer = await this.peerConnection.createOffer();        
         await this.peerConnection.setLocalDescription(offer);
-        this.onGotOffer?.(offer.sdp, this.callId, type);
+        this.onGotOffer?.(offer.sdp, this.callId, this.type);
     };
 
     addAnswer = async (sdp) => {
