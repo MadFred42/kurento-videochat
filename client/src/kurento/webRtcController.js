@@ -1,4 +1,5 @@
 import { ACTIONS } from "../helpers/socketActions";
+import socket from "../socket";
 import { CONNECTION_TYPE } from "./connectionType";
 import webRtcConnection from "./webRtcConnection";
 
@@ -8,6 +9,9 @@ export default class WebRtcController {
         this.connections = {};
         this.candidateQueue = {};
         this.localStream = {};
+        socket.on(ACTIONS.VIDEOCHAT_ICE, async data =>  {
+            this.addIceCandidate({ candidate: data.candidate, callId: data.callId });
+        });
     }
 
     createPublishConnection = async (data) => {
@@ -24,6 +28,7 @@ export default class WebRtcController {
     };
 
     createViewConnection = async (data) => {
+        console.log('creating view')
         const connection = new webRtcConnection({
             ...data, 
             type: CONNECTION_TYPE.VIEW,
@@ -59,4 +64,15 @@ export default class WebRtcController {
             delete this.candidateQueue[callId];
         }
     };  
+
+    getConnection(userId, type) {
+        const connections = [];
+        Object.keys(this.connections).forEach(connection => {
+            if (connection.callId === userId && connection.type === type) {
+                connections.push(connection)
+            }
+        });
+
+        return connections;
+    };
 };

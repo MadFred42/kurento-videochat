@@ -22,7 +22,18 @@ export default class WebRtcConnection {
              }, (callback) => data.getAnswer(callback)
         );
         this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate });
-        this.onGotLocalStream = (stream) => data.onGotLocalStream(stream);
+        this.onGotLocalStream = (stream) => {
+            data.onGotLocalStream({
+                id: this.callId,
+                localStream: stream
+            })
+        };
+        this.onGotStream = ({ stream }) => {
+            data.onGotRemoteStream({
+                id: this.callId,
+                localStream: stream
+            })
+        };
     };
 
     createPeerConnection = async () => {
@@ -40,10 +51,6 @@ export default class WebRtcConnection {
         this.peerConnection.onconnectionstatechange = this.onIceConnectionsStateChange;
     };
 
-    onGotStream = (stream) => {
-        console.log(stream)
-    };
-
     onIceConnectionsStateChange = (state) => {
         console.log('ice connection state change:', state);
         console.log('iceConnectionState: ', this.peerConnection.iceConnectionState);
@@ -54,16 +61,16 @@ export default class WebRtcConnection {
         this.localStream = await getUserMedia(constraints);
         this.onGotLocalStream?.(this.localStream);
     };
-    // {
-    //     offerToReceiveAudio: this.type === 'view', 
-    //     offerToReceiveVideo: this.type === 'view'
-    // }
+    
     createOffer = async () => {
         if (this.localStream) {
             this.localStream.getTracks().forEach(track => this.peerConnection.addTrack(track));
             
         }
-        const offer = await this.peerConnection.createOffer();        
+        const offer = await this.peerConnection.createOffer({
+            offerToReceiveAudio: this.type === 'view', 
+            offerToReceiveVideo: this.type === 'view'
+        });        
         await this.peerConnection.setLocalDescription(offer);
         this.onGotOffer?.(offer.sdp, this.callId, this.type);
     };

@@ -24,10 +24,9 @@ class VideoService {
             throw { message: 'Invalid call id' };
         }
         const { videoStream, answer } = await this.createUserStream(socket, { callId, offer });
-        socket.user.addPublishStream(videoStream);
+        // socket.user.addViewStream(videoStream);
 
         await publishStream.endpoint.connect(videoStream.endpoint);
-        
         return {
             answer,
             callId            

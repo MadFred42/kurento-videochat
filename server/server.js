@@ -37,7 +37,7 @@ io.on(ACTIONS.CONNECT, (socket) => {
       socket.room = {
           getVideoState: async () => {
               const all = await io.fetchSockets();
-              return all.map(user => user.user);
+              return all.map(socket => socket.user);
           }
       };
       socket.user = {
@@ -60,8 +60,12 @@ io.on(ACTIONS.CONNECT, (socket) => {
    });
    
    socket.on(ACTIONS.OFFER_VIEW, async (data, callback) => {
-      const res = await videoController.view(io, socket, data);
-      return callback(res);
+      try {
+         const res = await videoController.view(io, socket, data);
+         return callback(res);
+      } catch (e) {
+         console.log(e)
+      }
    });
 
    socket.on(ACTIONS.ICE_CANDIDATE, async (data, callback) => {

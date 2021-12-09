@@ -1,13 +1,27 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 
-export const UserVideo = ({streams}) => {
+export const UserVideo = ({ stream }) => {
     const videoRef = useRef();
-    console.log(streams);
+
+    useEffect(() => {
+        console.log(stream)
+        if (!videoRef.current) {
+            return;
+        }
+
+        videoRef.current.srcObject = stream.localStream;
+        videoRef.current.play();
+        
+    }, [videoRef]);
+
+
     return (
         <div>
             <video
-                ref={videoRef}
-                autoPlay />
+                autoPlay
+                playsInline
+                preload="none"
+                ref={videoRef} />
         </div>
     )
 };
