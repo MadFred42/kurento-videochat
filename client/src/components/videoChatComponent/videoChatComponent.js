@@ -12,11 +12,11 @@ export const VideoChatComponent = () => {
     const [currentUser, setCurrentUser] = useState([]);
     const webRtcController = new WebRtcController();
     const videoChatStateRef = useRef();
-    let onGotLocalCandidate, onGotPublishOffer;
+    let onGotLocalCandidate;
 
     useEffect(() => {
         publishStream();
-    }, []);
+    }, [videoChatStateRef]);
 
     useEffect(() => { 
         socket.on(ACTIONS.VIDEOCHAT_STATE, (data) => {
@@ -27,10 +27,10 @@ export const VideoChatComponent = () => {
 
     const porcessVideoChatState =  useCallback(async () => {
         const videoChatState = videoChatStateRef.current;
+        console.log(videoChatStateRef.current);
         let allStreamsToView = [];
         for (let i = 0; i < videoChatState.length; i++) {
             const videoChatMember = videoChatState[i];
-
             if (!videoChatMember) {
                 return
             }
@@ -43,12 +43,17 @@ export const VideoChatComponent = () => {
                 continue;
             }
             const currentStreams = videoChatMember.streams || [];
-            const localViewStreams = webRtcController.getConnection(videoChatMember.id, "view");
-            const streamsToRemove = differenceWith(localViewStreams, currentStreams, (a, b) => a.callId === b.publushCallId);
-            const streamsToView = differenceWith(currentStreams, localViewStreams, (a, b) => a.callId === b.publushCallId);
+            const localViewStreams = webRtcController.getConnections(videoChatMember.id, "view");
+            console.log(localViewStreams)
+            const streamsToRemove = differenceWith(localViewStreams, currentStreams, (a, b) => {
+                return a.callId === b.publushCallId
+            });
+            const streamsToView = differenceWith(currentStreams, localViewStreams, (a, b) => {
+                return a.callId === b.publushCallId
+            });
 
             for (let j = 0; j < streamsToRemove.length; j++) {
-                // await stopViewStreams(videoChatMember) 
+                await webRtcController.stopViewStreams(videoChatMember);
             }
 
             allStreamsToView = [...allStreamsToView, { member: videoChatMember, streams: streamsToView }];
@@ -67,7 +72,6 @@ export const VideoChatComponent = () => {
         const callId = v4();
         await webRtcController.createPublishConnection({
             callId,
-            // userId: videoChatMember.id,
             onGotLocalStream: (stream) => onGotUserVideoStream(callId, stream),
             onGotCandidate: onGotLocalCandidate
         });
@@ -84,9 +88,11 @@ export const VideoChatComponent = () => {
         });
     }, []);
 
+    const stopViewStreams = useCallback((videoChatMember) => {
+
+    }, []);
+
     const onGotUserVideoStream = useCallback((id ,stream) => {
-        console.log(stream);
-        console.log(id)
         setVideoStreams(prevStreams => (
             ([
                 ...prevStreams.filter(s => s.id !==id), 
@@ -96,12 +102,15 @@ export const VideoChatComponent = () => {
                 }
             ])
         ));
+
+        console.log(videoStreams)
     }, []);
     
     return (
         <Grid 
-            container rowSpacing={1} 
+            container
             columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+            spacing={1}
         >
             {videoStreams.map((stream, i) => (
                 <UserVideo

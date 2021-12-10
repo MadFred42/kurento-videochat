@@ -37,7 +37,8 @@ io.on(ACTIONS.CONNECT, (socket) => {
       socket.room = {
           getVideoState: async () => {
               const all = await io.fetchSockets();
-              return all.map(socket => socket.user);
+              const res = all.map(socket => socket.user);
+              return res
           }
       };
       socket.user = {
@@ -45,13 +46,13 @@ io.on(ACTIONS.CONNECT, (socket) => {
          addPublishStream: (stream) => {
             socket.user.streams = [
                ...(socket.user.streams || []),
-               { ...stream }
+               { ...stream, type: 'publish', socketId: socket.id }
             ];
          },
-         addViewStream: ({ videoStream, publishCallId }) => {
+         addViewStream: (videoStream, publishCallId) => {
             socket.user.streams = [
                ...(socket.user.streams || []),
-               { ...videoStream, publishCallId }
+               { ...videoStream, publishCallId, type: 'view', socketId: socket.id }
             ];
          }
       };
@@ -80,6 +81,13 @@ io.on(ACTIONS.CONNECT, (socket) => {
 
    socket.on(ACTIONS.DISCONNECT, async () => {
       console.log(`user ${socket.id} disconnected`);
+
+      const userStream = socket.user;
+      const leavingStream = userStream.streams.find(stream => stream.socketId === socket.id);
+      leavingStream.endpoint.release();
+
+      const chatState = await socket.room.getVideoState();
+      io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: chatState });
 
       await userController.deleteUser(socket.id);
    })

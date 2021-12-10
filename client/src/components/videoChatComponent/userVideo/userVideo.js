@@ -11,19 +11,23 @@ export const UserVideo = ({ stream }) => {
         }
 
         videoRef.current.srcObject = stream.localStream;
-        videoRef.current.play();
+        // videoRef.current.play();
         
     }, [videoRef, stream]);
 
 
     return (
-        <Grid item xs={6}>
+        <Grid 
+            item 
+            xs={6}
+        >
             <video
                 autoPlay
                 muted
                 playsInline
                 preload="none"
-                ref={videoRef} />
+                ref={videoRef}
+                style={{ alignSelf: 'center', border: '1px solid black', borderRadius: '10px', width: '100%' }} />
         </Grid>
     )
 };

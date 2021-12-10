@@ -48,7 +48,7 @@ export default class WebRtcConnection {
                 this.onGotStream({ stream: this.stream });
             }
         }
-        this.peerConnection.onconnectionstatechange = this.onIceConnectionsStateChange;
+        // this.peerConnection.onconnectionstatechange = this.onIceConnectionsStateChange;
     };
 
     onIceConnectionsStateChange = (state) => {

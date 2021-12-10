@@ -5,7 +5,7 @@ import VideoChatComponent from '../components/videoChatComponent';
 import { Context } from '..';
 import { observer } from 'mobx-react-lite';
 import { Navigate } from 'react-router-dom';
-import { Grid } from '@mui/material';
+import { Grid, Box, Container } from '@mui/material';
 
 export const RoomPage = observer(() => {
     const { authStore, messageStore, roomStore } = useContext(Context);
@@ -25,17 +25,13 @@ export const RoomPage = observer(() => {
     }
 
     return (
-        <Grid
-            container
-            spacing={0}
+        <Container
             direction="column"
-            alignItems="center"
-            justifyContent="center"
             style={{ minHeight: '100vh' }}
         >
             <VideoChatComponent />
             <MessageList />
             <MessageForm />
-        </Grid>
+        </Container>
     );
 });

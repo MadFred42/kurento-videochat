@@ -9,7 +9,7 @@ export const MessageList = observer(() => {
     const messages = messageStore.messages;
     
     return (
-        <List>
+        <List style={{border: '1px solid black', borderRadius: '10px'}}>
             {messages.map(message => (
                 <MessageListItem key={message._id} message={message.text}/>
             ))}

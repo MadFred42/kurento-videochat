@@ -6,8 +6,8 @@ const videoService = require("../services/videoService");
 exports.publish = async function(io, socket, data) {
     const { offer, callId, type } = data;
     const response = await videoService.publish(socket, { offer, callId }); 
-    const res = await socket.room.getVideoState();
-    io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: await socket.room.getVideoState()});
+    const chatState = await socket.room.getVideoState();
+    io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: chatState, currentUser: callId });
     return response;
 };
 

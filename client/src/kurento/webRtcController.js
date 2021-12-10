@@ -55,7 +55,7 @@ export default class WebRtcController {
         const connection = this.connections[callId];
         await connection.addAnswer(answer);
         const candidateQueue = this.candidateQueue[callId];
-        console.log('got the answer')
+        
         if (candidateQueue) {
             for (let i = 0; i < candidateQueue.length; i++) {
                 await connection.addIceCandidate(candidateQueue[i]);
@@ -67,12 +67,27 @@ export default class WebRtcController {
 
     getConnection(userId, type) {
         const connections = [];
-        Object.keys(this.connections).forEach(connection => {
-            if (connection.callId === userId && connection.type === type) {
-                connections.push(connection)
+        Object.keys(this.connections).forEach(id => {
+            if (this.connections[id].callId === userId && this.connections[id].type === type) {
+                connections.push(this.connections[id]);
             }
         });
 
         return connections;
     };
+
+    getConnections(userId, type) {
+        const connections = [];
+        Object.keys(this.connections).forEach(id => {
+            if (this.connections[id].callId !== userId && this.connections[id].type === type) {
+                connections.push(this.connections[id]);
+            }
+        });
+        console.log(this.connections)
+        console.log(connections)
+        return connections;
+    };
+
+    async stopViewStreams(videoChatMember) {
+    }
 };
