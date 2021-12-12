@@ -11,8 +11,7 @@ export const UserVideo = ({ stream }) => {
         }
 
         videoRef.current.srcObject = stream.localStream;
-        // videoRef.current.play();
-        
+        videoRef.current.play();      
     }, [videoRef, stream]);
 
 

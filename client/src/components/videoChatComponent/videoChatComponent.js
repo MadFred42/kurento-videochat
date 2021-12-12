@@ -3,57 +3,59 @@ import WebRtcController from '../../kurento/webRtcController';
 import { v4 } from 'uuid';
 import { ACTIONS } from '../../helpers/socketActions';
 import socket from '../../socket';
-import differenceWith from 'lodash/differenceWith'
+import differenceWith from 'lodash/differenceWith';
 import { UserVideo } from './userVideo/userVideo';
 import { Grid } from '@mui/material';
 
 export const VideoChatComponent = () => {
     const [videoStreams, setVideoStreams] = useState([]);
-    const [currentUser, setCurrentUser] = useState([]);
     const webRtcController = new WebRtcController();
     const videoChatStateRef = useRef();
     let onGotLocalCandidate;
 
     useEffect(() => {
-        publishStream();
-    }, [videoChatStateRef]);
+        publishStream(socket.id);
+    }, []);
+
+    useEffect(() => {
+        console.log(videoStreams)
+    }, [videoStreams]);
 
     useEffect(() => { 
         socket.on(ACTIONS.VIDEOCHAT_STATE, (data) => {
             videoChatStateRef.current = data.videos;
-            porcessVideoChatState();
+            porcessVideoChatState(socket.id);
         });    
     }, []);
 
-    const porcessVideoChatState =  useCallback(async () => {
+    const porcessVideoChatState =  useCallback(async (currentUser) => {
         const videoChatState = videoChatStateRef.current;
-        console.log(videoChatStateRef.current);
         let allStreamsToView = [];
+
         for (let i = 0; i < videoChatState.length; i++) {
             const videoChatMember = videoChatState[i];
-            if (!videoChatMember) {
-                return
-            }
+            // if (!videoChatMember) {
+            //     return
+            // }
 
             if (currentUser === videoChatMember.id) {
                 const publishConnection = webRtcController.getConnection(videoChatMember.id, "publish");
-                if (!publishConnection) {
+                if (publishConnection.length < 1) {
                     await publishStream(videoChatMember);
                 }
                 continue;
             }
             const currentStreams = videoChatMember.streams || [];
             const localViewStreams = webRtcController.getConnections(videoChatMember.id, "view");
-            console.log(localViewStreams)
             const streamsToRemove = differenceWith(localViewStreams, currentStreams, (a, b) => {
-                return a.callId === b.publushCallId
+                return a.publishCallId === b.callId
             });
             const streamsToView = differenceWith(currentStreams, localViewStreams, (a, b) => {
-                return a.callId === b.publushCallId
+                return a.callId === b.publishCallId
             });
 
             for (let j = 0; j < streamsToRemove.length; j++) {
-                await webRtcController.stopViewStreams(videoChatMember);
+                stopViewStreams(videoChatMember);
             }
 
             allStreamsToView = [...allStreamsToView, { member: videoChatMember, streams: streamsToView }];
@@ -72,24 +74,30 @@ export const VideoChatComponent = () => {
         const callId = v4();
         await webRtcController.createPublishConnection({
             callId,
-            onGotLocalStream: (stream) => onGotUserVideoStream(callId, stream),
+            userId: videoChatMember,
+            onGotLocalStream: (stream) => onGotUserVideoStream(videoChatMember, stream),
             onGotCandidate: onGotLocalCandidate
         });
-        
     }, []);
 
     const viewStream = useCallback(async (videoChatMember, stream) => {
         const callId = v4();
         await webRtcController.createViewConnection({
             callId,
-            publishCallId: stream.callId,
             userId: videoChatMember.id,
+            publishCallId: stream.callId,
             onGotRemoteStream: (stream) => onGotUserVideoStream(videoChatMember.id, stream)
         });
     }, []);
 
-    const stopViewStreams = useCallback((videoChatMember) => {
+    const stopViewStreams = useCallback(async (videoChatMember) => {
+        setVideoStreams(prevStreams => (
+            
+                prevStreams.filter(stream => stream.id !== videoChatMember.id)
+            
+        ));
 
+        await webRtcController.stopViewStreams(videoChatMember.id);
     }, []);
 
     const onGotUserVideoStream = useCallback((id ,stream) => {
@@ -102,8 +110,6 @@ export const VideoChatComponent = () => {
                 }
             ])
         ));
-
-        console.log(videoStreams)
     }, []);
     
     return (

@@ -7,7 +7,9 @@ exports.publish = async function(io, socket, data) {
     const { offer, callId, type } = data;
     const response = await videoService.publish(socket, { offer, callId }); 
     const chatState = await socket.room.getVideoState();
-    io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: chatState, currentUser: callId });
+
+    io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: chatState, currentUser: socket.id });
+    
     return response;
 };
 

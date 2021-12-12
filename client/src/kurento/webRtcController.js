@@ -28,7 +28,6 @@ export default class WebRtcController {
     };
 
     createViewConnection = async (data) => {
-        console.log('creating view')
         const connection = new webRtcConnection({
             ...data, 
             type: CONNECTION_TYPE.VIEW,
@@ -68,7 +67,7 @@ export default class WebRtcController {
     getConnection(userId, type) {
         const connections = [];
         Object.keys(this.connections).forEach(id => {
-            if (this.connections[id].callId === userId && this.connections[id].type === type) {
+            if (this.connections[id].userId === userId && this.connections[id].type === type) {
                 connections.push(this.connections[id]);
             }
         });
@@ -79,15 +78,21 @@ export default class WebRtcController {
     getConnections(userId, type) {
         const connections = [];
         Object.keys(this.connections).forEach(id => {
-            if (this.connections[id].callId !== userId && this.connections[id].type === type) {
+            if (this.connections[id].userId === userId && this.connections[id].type === type) {
                 connections.push(this.connections[id]);
             }
         });
-        console.log(this.connections)
-        console.log(connections)
+        
         return connections;
     };
 
-    async stopViewStreams(videoChatMember) {
-    }
+    stopViewStreams(userId) {
+        console.log(this.connections);
+        Object.keys(this.connections).forEach(async id => {
+            if (this.connections[id].userId === userId) {
+                await this.connections[id].stopStream();
+            }
+        });
+        console.log(this.connections);
+    };
 };

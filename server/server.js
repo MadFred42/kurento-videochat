@@ -20,9 +20,33 @@ app.use(cors( {
     methods: ["GET", "POST"]
  } ));
 
-io.on(ACTIONS.CONNECT, (socket) => {
+io.on(ACTIONS.CONNECT, async (socket) => {
    console.log(`A user connected ${socket.id}`);
    socket.join('room');
+
+   socket.room = {
+      getVideoState: async () => {
+          const all = await io.fetchSockets();
+          const res = all.map(socket => socket.user);
+          return res
+      }
+   };
+
+   socket.user = {
+      id: socket.id,
+      addPublishStream: (stream) => {
+         socket.user.streams = [
+            ...(socket.user.streams || []),
+            { ...stream, type: 'publish', socketId: socket.id }
+         ];
+      },
+      addViewStream: (videoStream, publishCallId) => {
+         socket.user.streams = [
+            ...(socket.user.streams || []),
+            { ...videoStream, publishCallId, type: 'view', socketId: socket.id }
+         ];
+      }
+   };
    
    socket.on(ACTIONS.JOIN, async (data, callback) => {
       const res = await userController.registration(data.username, data.password, socket, io);
@@ -34,28 +58,6 @@ io.on(ACTIONS.CONNECT, (socket) => {
    });
 
    socket.on(ACTIONS.OFFER_PUBLISH, async (data, callback) => {
-      socket.room = {
-          getVideoState: async () => {
-              const all = await io.fetchSockets();
-              const res = all.map(socket => socket.user);
-              return res
-          }
-      };
-      socket.user = {
-         id: data.callId,
-         addPublishStream: (stream) => {
-            socket.user.streams = [
-               ...(socket.user.streams || []),
-               { ...stream, type: 'publish', socketId: socket.id }
-            ];
-         },
-         addViewStream: (videoStream, publishCallId) => {
-            socket.user.streams = [
-               ...(socket.user.streams || []),
-               { ...videoStream, publishCallId, type: 'view', socketId: socket.id }
-            ];
-         }
-      };
       const res = await videoController.publish(io, socket, data);
       callback(res);
    });
@@ -82,12 +84,14 @@ io.on(ACTIONS.CONNECT, (socket) => {
    socket.on(ACTIONS.DISCONNECT, async () => {
       console.log(`user ${socket.id} disconnected`);
 
-      const userStream = socket.user;
-      const leavingStream = userStream.streams.find(stream => stream.socketId === socket.id);
-      leavingStream.endpoint.release();
+      // socket.user.streams = [];
 
-      const chatState = await socket.room.getVideoState();
-      io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: chatState });
+      const leavingUser = socket.user;
+      leavingUser.streams.forEach(async stream => await stream.endpoint.release());
+
+      leavingUser.streams = [];
+
+      io.emit(ACTIONS.VIDEOCHAT_STATE, { videos: [leavingUser] });
 
       await userController.deleteUser(socket.id);
    })

@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const RoomSchema = new Schema({
-    users: { type: [], validate: [arrayLimit] },
+    users: { type: Array },
     messages: { type: Array } 
 });
 

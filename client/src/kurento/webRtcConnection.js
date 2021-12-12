@@ -10,9 +10,11 @@ export default class WebRtcConnection {
 
     constructor(data) {
         this.callId = data.callId;
+        this.userId = data.userId;
         this.type = data.type;
         this.iceServers = data.iceServers;
         this.sdpAnswerSet = false;
+        this.publishCallId = data.publishCallId
         this.onGotOffer = (offer, callId, type) => socket.emit(
             type === 'publish' ? ACTIONS.OFFER_PUBLISH : ACTIONS.OFFER_VIEW, { 
                 offer, 
@@ -84,4 +86,8 @@ export default class WebRtcConnection {
     addIceCandidate = async (candidate) => {
         await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
     };
+
+    stopStream = async () => {
+        this.peerConnection.close();
+    }
 };
