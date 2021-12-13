@@ -88,8 +88,9 @@ export default class WebRtcController {
 
     stopViewStreams(userId) {
         Object.keys(this.connections).forEach(async id => {
-            if (this.connections[id].userId === userId) {
+            if (this.connections[id].userId === userId || this.connections[id].type === 'view') {
                 await this.connections[id].stopStream();
+                delete this.connections[id];
             }
         });
     };

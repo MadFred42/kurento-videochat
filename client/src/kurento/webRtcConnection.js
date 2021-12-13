@@ -4,7 +4,6 @@ import { getUserMedia } from './getUserMedia';
 import socket from '../socket';
 import { ACTIONS } from '../helpers/socketActions';
 import socketEmit from '../helpers/socketEmit';
-import { VideoChatComponent } from '../components/videoChatComponent/videoChatComponent';
 
 export default class WebRtcConnection {
 
@@ -26,21 +25,20 @@ export default class WebRtcConnection {
         this.onGotCandidate = (callId, candidate) => socketEmit(ACTIONS.ICE_CANDIDATE, { callId, candidate });
         this.onGotLocalStream = (stream) => {
             data.onGotLocalStream({
-                id: this.callId,
+                id: this.userId,
                 localStream: stream
             })
         };
         this.onGotStream = ({ stream }) => {
             data.onGotRemoteStream({
-                id: this.callId,
+                id: this.userId,
                 localStream: stream
             })
         };
     };
 
     createPeerConnection = async () => {
-        // this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
-        this.peerConnection = new RTCPeerConnection();
+        this.peerConnection = new RTCPeerConnection(this.iceServers);
         this.peerConnection.onicecandidate = e => e.candidate && this.onGotCandidate(this.callId, e.candidate);
 
         if (this.type !== 'publish') {

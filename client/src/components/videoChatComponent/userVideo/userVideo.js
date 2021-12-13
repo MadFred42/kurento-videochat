@@ -1,17 +1,17 @@
 import React, { useRef, useEffect } from 'react';
 import { Grid } from '@mui/material';
 
-export const UserVideo = ({ stream }) => {
+export const UserVideo = ({ stream, isMyStream }) => {
     const videoRef = useRef();
 
     useEffect(() => {
         if (!videoRef.current) {
             return;
         }
-
         videoRef.current.srcObject = stream.localStream;
-        videoRef.current.play();      
-    }, [videoRef, stream]);
+        videoRef.current.muted = isMyStream;
+        // videoRef.current.play();      
+    }, [videoRef, stream, isMyStream]);
 
 
     return (

@@ -15,6 +15,7 @@ services:
     environment:
       - PORT=5000
       - DB_URL=mongodb://mongo:27017/myFirstDatabase
+      - KURENTO_URL=ws://78.46.107.230:8889/kurento
     ports:
       - 4242:5000
 

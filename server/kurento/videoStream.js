@@ -1,5 +1,6 @@
 const ACTIONS = require("../helpers/socketActions");
 const IceCandidate = require('kurento-client-elements/lib/complexTypes/IceCandidate');
+const IceServersProvider = require('./iceServersProvider');
 
 class VideoStream {
     constructor(data) {
@@ -19,7 +20,7 @@ class VideoStream {
     };
 
     async configureEndpoint() {
-        const iceServers = await IceServersProvider.getIceServerForKurento(); //непонятно, что за функция
+        const iceServers = await IceServersProvider.getIceServerForKurento();
         await this.endpoint.setStunServerAddress(iceServers.stun.ip);
         await this.endpoint.setStunServerPort(iceServers.stun.port);
         await this.endpoint.setTurnUrl(iceServers.turn);

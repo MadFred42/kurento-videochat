@@ -3,6 +3,7 @@ import WebRtcController from '../../kurento/webRtcController';
 import { v4 } from 'uuid';
 import { ACTIONS } from '../../helpers/socketActions';
 import socket from '../../socket';
+import { ICE_config } from '../../utils/ICE_config';
 import differenceWith from 'lodash/differenceWith';
 import { UserVideo } from './userVideo/userVideo';
 import { Grid } from '@mui/material';
@@ -11,9 +12,10 @@ export const VideoChatComponent = () => {
     const [videoStreams, setVideoStreams] = useState([]);
     const webRtcController = new WebRtcController();
     const videoChatStateRef = useRef();
-    let onGotLocalCandidate;
+    const iceServersRef = useRef();
 
     useEffect(() => {
+        iceServersRef.current = ICE_config;
         publishStream(socket.id);
     }, []);
 
@@ -30,9 +32,6 @@ export const VideoChatComponent = () => {
 
         for (let i = 0; i < videoChatState.length; i++) {
             const videoChatMember = videoChatState[i];
-            // if (!videoChatMember) {
-            //     return
-            // }
 
             if (currentUser === videoChatMember.id) {
                 const publishConnection = webRtcController.getConnection(videoChatMember.id, "publish");
@@ -70,9 +69,9 @@ export const VideoChatComponent = () => {
         const callId = v4();
         await webRtcController.createPublishConnection({
             callId,
+            iceServers: iceServersRef.current,
             userId: videoChatMember,
             onGotLocalStream: (stream) => onGotUserVideoStream(videoChatMember, stream),
-            onGotCandidate: onGotLocalCandidate
         });
     }, []);
 
@@ -80,23 +79,23 @@ export const VideoChatComponent = () => {
         const callId = v4();
         await webRtcController.createViewConnection({
             callId,
+            iceServers: iceServersRef.current,
             userId: videoChatMember.id,
             publishCallId: stream.callId,
-            onGotRemoteStream: (stream) => onGotUserVideoStream(videoChatMember.id, stream)
+            onGotRemoteStream: (stream) => onGotUserVideoStream(videoChatMember.id, stream),
         });
     }, []);
 
-    const stopViewStreams = useCallback(async (videoChatMember) => {
+    const stopViewStreams = useCallback((videoChatMember) => {
         setVideoStreams(prevStreams => (
-            
-                prevStreams.filter(stream => stream.id !== videoChatMember.id)
-            
+            prevStreams.filter(stream => stream.id !== videoChatMember.id)
         ));
 
-        await webRtcController.stopViewStreams(videoChatMember.id);
+        webRtcController.stopViewStreams(videoChatMember.id);
     }, []);
 
     const onGotUserVideoStream = useCallback((id ,stream) => {
+        console.log('got streams');
         setVideoStreams(prevStreams => (
             ([
                 ...prevStreams.filter(s => s.id !==id), 
@@ -114,11 +113,15 @@ export const VideoChatComponent = () => {
             columnSpacing={{ xs: 1, sm: 2, md: 3 }}
             spacing={1}
         >
-            {videoStreams.map((stream, i) => (
-                <UserVideo
-                    key={i}
-                    stream={stream.localStream} />
-            ))}
+            {
+                videoStreams.map((stream, i) => {
+                    return (
+                        <UserVideo
+                            key={i}
+                            stream={stream.localStream}
+                            isMyStream={stream.id === socket.id} />
+                    )})
+            }
         </Grid>
     );
 };

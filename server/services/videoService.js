@@ -44,7 +44,7 @@ class VideoService {
             },
         });
 
-        // await videoStream.configureEndpoint();
+        await videoStream.configureEndpoint();
         this.videoStreams[callId] = videoStream;
         
         if (this.candidateQueue[callId]) {
