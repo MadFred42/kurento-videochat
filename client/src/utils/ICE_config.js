@@ -4,7 +4,7 @@ export const ICE_config = {
             'urls': 'stun:stun.l.google.com:19302'
         },
         {
-            'url': 'turn:78.46.107.230:3486',
+            'urls': 'turn:78.46.107.230:3486',
             'username': 'kurentoturn',
             'credential': 'kurentoturnpassword'
         }
