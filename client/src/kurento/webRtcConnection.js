@@ -53,10 +53,10 @@ export default class WebRtcConnection {
         // this.peerConnection.onconnectionstatechange = this.onIceConnectionsStateChange;
     };
 
-    onIceConnectionsStateChange = (state) => {
-        console.log('ice connection state change:', state);
-        console.log('iceConnectionState: ', this.peerConnection.iceConnectionState);
-    }
+    // onIceConnectionsStateChange = (state) => {
+    //     console.log('ice connection state change:', state);
+    //     console.log('iceConnectionState: ', this.peerConnection.iceConnectionState);
+    // }
 
     generateLocalStream = async () => {
         const constraints = getConstraints();

@@ -101,7 +101,6 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
    try {
-      console.log(process.env.DB_URL)
       mongoose.connect(process.env.DB_URL);
       server.listen(PORT, () => console.log(`Server started on ${PORT} port`));
    } catch (e) {

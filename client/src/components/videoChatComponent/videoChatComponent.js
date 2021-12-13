@@ -17,10 +17,6 @@ export const VideoChatComponent = () => {
         publishStream(socket.id);
     }, []);
 
-    useEffect(() => {
-        console.log(videoStreams)
-    }, [videoStreams]);
-
     useEffect(() => { 
         socket.on(ACTIONS.VIDEOCHAT_STATE, (data) => {
             videoChatStateRef.current = data.videos;

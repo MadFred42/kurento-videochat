@@ -5,7 +5,6 @@ export const UserVideo = ({ stream }) => {
     const videoRef = useRef();
 
     useEffect(() => {
-        console.log(stream)
         if (!videoRef.current) {
             return;
         }
