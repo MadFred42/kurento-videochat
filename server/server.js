@@ -84,10 +84,11 @@ io.on(ACTIONS.CONNECT, async (socket) => {
    socket.on(ACTIONS.DISCONNECT, async () => {
       console.log(`user ${socket.id} disconnected`);
 
-      // socket.user.streams = [];
-
       const leavingUser = socket.user;
-      leavingUser.streams.forEach(async stream => await stream.endpoint.release());
+      
+      if (leavingUser.streams) {
+         leavingUser.streams.forEach(async stream => await stream.endpoint.release());
+      }
 
       leavingUser.streams = [];
 

@@ -13,9 +13,9 @@ export const VideoChatComponent = () => {
     const webRtcController = new WebRtcController();
     const videoChatStateRef = useRef();
     const iceServersRef = useRef();
+    iceServersRef.current = ICE_config;
 
     useEffect(() => {
-        iceServersRef.current = ICE_config;
         publishStream(socket.id);
     }, []);
 
@@ -34,10 +34,6 @@ export const VideoChatComponent = () => {
             const videoChatMember = videoChatState[i];
 
             if (currentUser === videoChatMember.id) {
-                const publishConnection = webRtcController.getConnection(videoChatMember.id, "publish");
-                if (publishConnection.length < 1) {
-                    await publishStream(videoChatMember);
-                }
                 continue;
             }
             const currentStreams = videoChatMember.streams || [];
@@ -66,16 +62,18 @@ export const VideoChatComponent = () => {
     }, []);
   
     const publishStream = useCallback(async (videoChatMember) => {
+        console.log('publishStream')
         const callId = v4();
         await webRtcController.createPublishConnection({
             callId,
             iceServers: iceServersRef.current,
             userId: videoChatMember,
-            onGotLocalStream: (stream) => onGotUserVideoStream(videoChatMember, stream),
+            onGotLocalStream: (stream) => onGotUserVideoStream(videoChatMember.id, stream),
         });
     }, []);
 
     const viewStream = useCallback(async (videoChatMember, stream) => {
+        console.log('viewStream')
         const callId = v4();
         await webRtcController.createViewConnection({
             callId,
