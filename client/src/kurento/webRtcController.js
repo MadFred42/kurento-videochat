@@ -25,6 +25,9 @@ export default class WebRtcController {
         await connection.createPeerConnection();
         await connection.createOffer();
         this.connections[connection.callId] = connection;
+
+        console.log(`connections after publish:`);
+        console.log(this.connections)
     };
 
     createViewConnection = async (data) => {
@@ -37,6 +40,9 @@ export default class WebRtcController {
         await connection.createOffer();
 
         this.connections[connection.callId] = connection;
+
+        console.log(`connections after view:`);
+        console.log(this.connections)
     };
 
     addIceCandidate = async ({ candidate, callId }) => {
@@ -88,7 +94,7 @@ export default class WebRtcController {
 
     stopViewStreams(userId) {
         Object.keys(this.connections).forEach(async id => {
-            if (this.connections[id].userId === userId || this.connections[id].type === 'view') {
+            if (this.connections[id].userId === userId) {
                 await this.connections[id].stopStream();
                 delete this.connections[id];
             }

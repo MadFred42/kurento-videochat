@@ -20,7 +20,7 @@ app.use(cors( {
     methods: ["GET", "POST"]
  } ));
 
-io.on(ACTIONS.CONNECT, async (socket) => {
+io.on(ACTIONS.CONNECT, (socket) => {
    console.log(`A user connected ${socket.id}`);
    socket.join('room');
 
@@ -37,13 +37,13 @@ io.on(ACTIONS.CONNECT, async (socket) => {
       addPublishStream: (stream) => {
          socket.user.streams = [
             ...(socket.user.streams || []),
-            { ...stream, type: 'publish', socketId: socket.id }
+            { ...stream, type: 'publish', userId: socket.id }
          ];
       },
       addViewStream: (videoStream, publishCallId) => {
          socket.user.streams = [
             ...(socket.user.streams || []),
-            { ...videoStream, publishCallId, type: 'view', socketId: socket.id }
+            { ...videoStream, publishCallId, type: 'view', userId: socket.id }
          ];
       }
    };

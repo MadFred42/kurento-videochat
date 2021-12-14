@@ -62,18 +62,21 @@ export const VideoChatComponent = () => {
     }, []);
   
     const publishStream = useCallback(async (videoChatMember) => {
-        console.log('publishStream')
+        console.log(`publishStream: ${videoChatMember}`)
         const callId = v4();
         await webRtcController.createPublishConnection({
             callId,
             iceServers: iceServersRef.current,
             userId: videoChatMember,
-            onGotLocalStream: (stream) => onGotUserVideoStream(videoChatMember.id, stream),
+            onGotLocalStream: (stream) => onGotUserVideoStream(videoChatMember, stream),
         });
     }, []);
 
     const viewStream = useCallback(async (videoChatMember, stream) => {
-        console.log('viewStream')
+        console.log(`viewStream: `)
+        console.log(stream)
+        console.log('member:')
+        console.log(videoChatMember)
         const callId = v4();
         await webRtcController.createViewConnection({
             callId,
@@ -93,7 +96,8 @@ export const VideoChatComponent = () => {
     }, []);
 
     const onGotUserVideoStream = useCallback((id ,stream) => {
-        console.log('got streams');
+        console.log(stream)
+        console.log(`got streams: id: ${id}`);
         setVideoStreams(prevStreams => (
             ([
                 ...prevStreams.filter(s => s.id !==id), 
